@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="./latex-css/latex.css">
+  
+  <title>Micro Frontend Patterns</title>
+  <style>
+    header {
+      background-color: darkslategrey;
+      color: white;
+      padding: 10px;
+    }
+
+    .container {
+      margin: 0 auto;
+      max-width: 720px;
+      padding: 20px;
+    }
+
+    img {
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
+    }
+  </style>
+</head>
+<body>
+<header>
+  Escolha seu tema preferido para leitura: 
+  <select id="selectStyle">
+    <option value="latex">Latex</option>
+    <option value="georgia">Georgia</option>
+    <option value="bootstrap">Bootstrap</option>
+  </select>
+</header>
+<main class="container" style="max-width: 50em">
+  <div class="row">
+    <div class="col">
+      <article>
+        <h1 id="sec:padroes-mfe">Padrões de <em>Micro Frontends</em></h1>
+        <ol class="summary">
+            <li>
+              <a href="#sstc">Server-side template composition</a>
+            </li>
+            <li>
+              <a href="#bti">Build-time integration</a>
+            </li>
+            <li>
+              <a href="#rtivi">Run-time integration via iframes</a>
+            </li>
+            <li>
+              <a href="#rtivjs">Run-time integration via JavaScript
+              </a>
+            </li>
+            <li>
+              <a href="#rtivwc">Run-time integration via Web Components</a>
+            </li>
+            <li>
+              <a href="#mf">Federação de Módulos</a>
+            </li>
+        </ol>
+        <p>
+          A indústria de <em>software</em> através da disciplina da Engenharia
+          de Software apresenta o conceito de <strong>padrão</strong>
+          (<em>pattern</em>) inspirado no que outras áreas mais maduras já faziam,
+          como a Engenharia Civil ou de <em>Hardware</em>. Havia a necessidade de
+          documentar práticas de sucesso, identificar problemas recorrentes e suas
+          soluções. Um padrão, de forma simples, é uma forma de documentar esses
+          cenários para possibilitar, principalmente, o reúso de decisões
+          estratégicas que envolvem os elementos de um sistema. Os padrões não são
+          construções teóricas mas artefatos descobertos em mais de um sistema
+          existente. Nas últimas décadas, vários autores fizeram grandes esforços
+          para catalogar os padrões, que antes habitavam apenas nas mentes dos
+          desenvolvedores experientes. Dessa forma, foram lançados os <em>Design
+          Patterns</em>, e muitos softwares e sistemas do mundo todo puderam se
+          beneficiar desse conhecimento 
+          <span class="citation" data-cites="PatternsLindaR1998">[Rising 1998]</span>.
+        </p>
+        <p>
+          <span class="citation" data-cites="JACKSON:MicroFrontends">[Jackson 2019]</span> 
+          catalogou como abordagens cinco possibilidades de implementação da
+          arquitetura de MFEs. Essas abordagens já são observadas em prática no
+          mercado de software e podem se enquadrar como padrões de <em>Micro
+          Frontend</em> dada sua definição. O autor também observa que, para todas
+          essas abordagens, há a necessidade de existir uma aplicação contêiner
+          que se encarregue de:
+        </p>
+        <ul>
+          <li>
+            Exibir elementos em comum da página, como cabeçalho e rodapé;
+          </li>
+          <li>
+            Tratar questões que atravessam as fronteiras das “micro aplicações”, como autenticação e navegação;
+          </li>
+          <li>
+            Reunir as N aplicações MFEs em uma única página e indicar onde cada uma deve ser exibida.
+          </li>
+        </ul>
+        <p>
+          As cinco abordagens catalogadas por <span class="citation" data-cites="JACKSON:MicroFrontends">[Jackson 2019]</span> são descritas na sequência.
+        </p>
+        <figure>
+          <img src="figuras/container-front.png" id="fig:container-front" style="width:70%" alt="Aplicação contêiner em destaque azul que exibe a navegação e o micro frontend “busca” em destaque verde. Fonte: [Jackson 2019]." />
+          <figcaption aria-hidden="true">
+              Aplicação contêiner em destaque azul que exibe a navegação e o <em>micro frontend</em> “busca” em destaque verde. Fonte:   <span class="citation" data-cites="JACKSON:MicroFrontends">[Jackson 2019]</span>.
+          </figcaption>
+        </figure>
+        <section id="sstc">
+          <h2><em>Server-side template composition</em></h2>
+          <p>
+            O padrão de composição de <em>templates</em> no lado servidor é a forma mais
+            clássica de fazer MFEs, que vem sido praticada antes mesmo desse
+            conceito ser formalizado. Neste padrão, existe uma página principal que
+            carrega a aplicação contêiner no documento <code>index.html</code>.
+          </p>
+          <p>Além dos elementos em comum, como cabeçalho, menu de navegação e
+            rodapé, a aplicação contêiner contém instruções para inclusão de
+            conteúdo dinamicamente por meio de variáveis do servidor. No servidor
+            Web, é possível definir que uma variável seja preenchida com um valor
+            informado por meio da URL solicitada. Assim, a variável é preenchida com
+            um bloco de HTML entregue pela aplicação <em>micro frontend</em>
+            solicitada, formando para o usuário final uma página completa (como
+            ilustrado pela Figura <a href="#fig:container-front"
+                data-reference-type="ref"
+                data-reference="fig:container-front">1.6</a>).
+          </p>
+          <p>O bloco de HTML pode pertencer a uma equipe dedicada, que o trata de
+            forma distinta de outras partes do sistema completo, podendo ter seu
+            próprio processo de construção, testes e implantação e, assim, não
+            afetar outras áreas. Neste padrão, ainda é sugerida a possibilidade de a
+            equipe ter seu próprio servidor, com um <em>cache</em> cuidadoso das
+            respostas para evitar que a latência seja afetada. A Figura <a
+                href="#fig:mfe-sstc" data-reference-type="ref"
+                data-reference="fig:mfe-sstc">1.7</a> ilustra múltiplos servidores.
+          </p>
+          <figure>
+            <img src="figuras/server-side-template-composition.png"
+                id="fig:mfe-sstc" style="width:70%"
+                alt="Cada um dos servidores pode ser construído e implantando individualmente. Fonte: ." />
+            <figcaption aria-hidden="true">Cada um dos servidores pode ser
+                construído e implantando individualmente. Fonte: <span class="citation"
+                  data-cites="JACKSON:MicroFrontends">[Jackson 2019]</span>.
+            </figcaption>
+          </figure>
+        </section>
+        <section id="bti">
+          <h2><em>Build-time integration</em></h2>
+          <p>
+            O padrão de integração no momento de construção é utilizado quando cada <em>micro
+            frontend</em> é entregue como um pacote (<em>package</em>) para ser
+            incluído como dependência na configuração da aplicação contêiner. Com
+            isto, será produzido um único pacote JavaScript para implantação, o que
+            traz benefícios caso os MFEs compartilhem das mesmas dependências.
+            Porém, com esta abordagem, para que as mudanças em um único <em>micro
+            frontend</em> sejam publicadas, é necessário que a aplicação contêiner
+            seja reconstruída, assim exigindo a reconstrução dos outros MFEs que
+            estão compondo o todo de maneira sincronizada e coordenada, processo
+            também conhecido como (<em>lockstep</em>) e sujeito à falhas, no
+            lançamento <em>(release)</em> da aplicação.
+          </p>
+          <p>A abordagem de integração no momento de construção é a menos
+            recomendada. Apesar de a composição em pacotes ser benéfica em alguns
+            outros contextos, para o contexto de MFEs ela introduz problemas de
+            acoplamento entre as diferentes aplicações no processo final de
+            implantação e lançamento, impactando a autonomia dos times
+            especializados em produtos.
+          </p>
+      </section>
+      <section id="rtivi">
+        <h2><em>Run-time integration via iframes</em></h2>
+        <p>
+          O padrão de integração em tempo de execução via <em>iframes</em>, assim como o
+          padrão de composição de <em>templates</em> no lado servidor, não é uma
+          técnica nova. O <em>iframe</em> (abreviação para <em>inline frame</em>)
+          é um recurso antigo para as páginas Web, foi introduzido em 1997 com
+          HTML 4.01 pelo navegador Internet Explorer da Microsoft através do
+          elemento <code>&lt;iframe&gt;</code>. Este recurso permite incorporar um
+          documento HTML dentro de outro documento HTML. Esta opção é a abordagem
+          mais simples para iniciar a divisão de um monólito em pequenas
+          aplicações, porém muitas pessoas e equipes que desenvolvem aplicativos
+          não se interessam em adota-lá.
+        </p>
+        <p>Considerando as principais característicos dos MFEs listadas
+          anteriormente, os <em>iframes</em> são em sua maioria adequados para
+          implementá-las, desde que haja cuidado em como dividir o aplicativo e
+          estruturar as equipes. Por sua natureza, os <em>iframes</em> facilitam a
+          construção de uma página a partir de subpáginas independentes. Eles
+          também oferecem um bom grau de isolamento em termos de estilo e
+          variáveis globais que não interferem entre si. Porém, esse fácil
+          isolamento tende a torná-los menos flexíveis do que as outras opções.
+          Pode ser difícil construir integrações entre os diferentes MFEs, por
+          isso, com <em>iframes</em>, o roteamento, o histórico e os links diretos
+          (<em>deep-linking</em><a href="#fn2" class="footnote-ref" id="fnref2"
+              role="doc-noteref"><sup>2</sup></a>) ficam mais complicados. Além disso,
+          os <em>iframes</em> apresentam alguns desafios extras para tornar uma
+          página totalmente compatível com dispositivos móveis.
+        </p>
+      </section>
+      <section id="rtivjs">
+        <h2><em>Run-time integration via JavaScript</em></h2>
+        <p>
+          O padrão de integração em tempo de execução via JavaScript, é utilizado
+          quando cada <em>micro frontend</em> é incluído na página da aplicação
+          contêiner usando uma <em>tag</em> <code>&lt;script&gt;</code> e que,
+          após o carregamento da página, expõe uma função global como ponto de
+          entrada. A aplicação contêiner determina então qual <em>micro
+          frontend</em> deve ser montado e chama a função relevante para informar
+          ao <em>micro frontend</em> quando e onde deve ser exibido. Ao contrário
+          do padrão de integração no momento de construção, é possível implantar
+          cada um dos arquivos JavaScript de cada <em>micro frontend</em> de forma
+          independente. E, ao contrário dos padrão com <em>iframes</em>, tem-se
+          total flexibilidade para construir integrações entre os MFEs da maneira
+          desejada. Por exemplo, baixar apenas cada pacote JavaScript conforme
+          necessário ou passar dados para dentro ou para fora das aplicações ao
+          exibir um <em>micro frontend</em>. A flexibilidade desta abordagem,
+          combinada à capacidade de implementação independente, tem feito ela ser
+          adotada pelas equipes com mais frequência que as demais.
+        </p>
+      </section>
+      <section id="rtivwc">
+        <h2><em>Run-time integration via Web Components</em></h2>
+        <p>
+          O padrão de integração em tempo de execução via <em>Web Components</em> é
+          uma variação da abordagem de integração via JavaScript. <em>Web
+          Components</em> é um padrão consolidado para criação de componentes
+          customizados sem o uso de <em>frameworks</em> de <em>frontend</em> <span
+              class="citation" data-cites="MFE:TaibiMezzalira2022">[Taibi e Mezzalira 2022]</span>. Nesta
+          abordagem, cada <em>micro frontend</em> define e cria um elemento HTML
+          personalizado para a aplicação contêiner exibir, em vez de definir uma
+          função global para a contêiner chamar. O resultado final é bastante
+          semelhante ao padrão via JavaScript, a principal diferença é a equipe
+          pode combinar com o padrão <em>Web Components</em> na composição de
+          MFEs. Aqui a equipe deve decidir, de acordo com a preferência e domínio
+          das técnicas, se prefere usar as especificações de <em>Web
+          Components</em> e usar os recursos que o navegador oferece, ou definir
+          sua própria interface entre o aplicativo contêiner e os MFEs através do
+          padrão via JavaScript.
+        </p>
+      </section>
+      
+      <p>
+        Os cinco padrões descritos acima foram mapeados por <span class="citation" data-cites="JACKSON:MicroFrontends">[Jackson 2019]</span>. 
+        Porém, em 2020, um grande evento impactou a cena do desenvolvimento de
+        <em>frontend</em>: o lançamento de uma tecnologia que também propôs um
+        novo padrão para aplicações com arquitetura Micro Frontend. Zack Jackson
+        e Tobias Koppers, criadores do Webpack<a href="#fn3" class="footnote-ref" id="fnref3" role="doc-noteref"><sup>3</sup></a> –
+        ferramenta de ampla adoção pelas equipes para o processo de
+        empacotamento — anunciaram o lançamento do padrão <strong>Federação de
+        Módulos</strong> (<em>Module Federation</em>). Na indústria de software,
+        “federado” significa uma abordagem colaborativa, porém descentralizada e
+        interoperável, para a construção de sistemas ou aplicativos.
+      </p>
+      <section id="mf">
+        <h2>Federação de Módulos</h2>
+        <p>
+          Este padrão permite que uma
+          aplicação JavaScript carregue dinamicamente o código de outra aplicação
+          menor. É um <em>mix</em> do melhor das integrações <em>build-time</em> e
+          <em>run-time</em> via JavaScript, porém com o apoio ferramental do
+          recurso para federação de módulos do Webpack. Por meio desse recurso, é
+          possível associar várias aplicações separadas que agem como contêineres,
+          com a possibilidade de expôr e consumir código de outras aplicações
+          (como ilustrado na Figura <a href="#fig:module-federation" data-reference-type="ref" data-reference="fig:module-federation">1.9</a>), 
+          resultando em uma aplicação unificada para o usuário final.
+        </p>
+        <figure>
+          <img src="figuras/module-federation-01.png" id="fig:module-federation" style="width:80%" alt="Padrão Federação de Módulos em alto nível. Fonte: ." />
+          <figcaption aria-hidden="true">Padrão Federação de Módulos em alto nível. Fonte: <span class="citation" data-cites="ModuleFederation:JacksonKoppers2020"> [Zack Jackson and Tobias Koppers 2020]</span>.
+          </figcaption>
+        </figure>
+        <p>
+          Alguns conceitos gerais formam o padrão federação de módulos. As
+          aplicações separadas poder ser distinguidas em módulos locais e módulos
+          remotos, como ilustrado na Figura <a href="#fig:module-federation" data-reference-type="ref" data-reference="fig:module-federation">1.9</a>. 
+          Módulos locais são módulos regulares que fazem parte de uma mesma aplicação e são
+          construídos (<em>built</em>) juntos. Módulos remotos são aqueles que não
+          fazem parte da aplicação, portanto são construídos e empacotados em
+          outro processo, porém são carregados em tempo de execução a partir de um
+          contêiner remoto. Um contêiner é criado por meio de uma entrada
+          (<em>container entry</em>), que expõe o acesso assíncrono aos módulos
+          específicos. Os contêineres podem ser aninhados e também usar módulos de
+          outros contêineres. Dependências circulares entre contêineres também são
+          possíveis. Cada aplicação que tem seu próprio processo de construção
+          (<em>build</em>) atua como um contêiner e também consome outras
+          <em>builds</em> como contêineres. Dessa forma, cada <em>build</em> é
+          capaz de acessar qualquer outro módulo exposto carregando-o de seu
+          contêiner.
+        </p>
+        <figure>
+          <img src="figuras/module-federation.png" id="fig:module-federation"
+              style="width:90%"
+              alt="Detalhes em abstração da integração de tipos de módulos do padrão Federação de Módulos. Fonte: ." />
+          <figcaption aria-hidden="true">Detalhes em abstração da integração de
+              tipos de módulos do padrão Federação de Módulos. Fonte: <span
+                class="citation"
+                data-cites="ModuleFederation:JacksonKoppers2020">[Zack Jackson and Tobias Koppers 2020]</span>.
+          </figcaption>
+        </figure>
+        <p>Módulos compartilhados são módulos substituíveis e fornecidos como
+          substituições para contêineres aninhados. Eles geralmente apontam para o
+          mesmo módulo em cada compilação, por exemplo, a mesma biblioteca.
+        </p>
+        <p>O uso da ferramenta Webpack para implementar a arquitetura federação
+          de módulos auxilia com a entrega de todos os benefícios dos MFEs e
+          resolve alguns problemas conhecidos, como o de redundância de
+          dependência, que é tratado com os módulos compartilhados. Ao mesmo
+          tempo, a ferramenta cria a dependência tecnológica da mesma, forçando
+          que todas as equipes utilizem o Webpack para o processo de
+          <em>build</em> de suas aplicações <span class="citation"
+              data-cites="Webpack:ModuleFederation Zack:ModuleFederation2020 ModuleFederation:JacksonKoppers2020">
+              [Webpack 2023],
+              [Zack Jackson 2020], 
+              [Zack Jackson and Tobias Koppers 2020]
+            </span>.
+        </p>
+      </section>
+      </article>
+      <section id="footnotes" class="footnotes footnotes-end-of-document" role="doc-endnotes">
+        <h3>Notas de Rodapé</h3>
+        <ol>
+            <li id="fn2">
+              <a href="http://https://www.adjust.com/glossary/deep-linking/" target="_blank">https://www.adjust.com/glossary/deep-linking/</a> 
+              <a href="#fnref2" class="footnote-back" role="doc-backlink">↩︎</a>
+            </li>
+            <li id="fn3">
+              <a href="http://https://webpack.js.org/" target="_blank">https://webpack.js.org/</a> 
+              <a href="#fnref3" class="footnote-back" role="doc-backlink">↩︎</a>
+            </li>
+        </ol>
+      </section>
+      <section class="biblio">
+        <h3>Bibliografia</h3>
+        <ol>
+          <li>
+            [Rising 1998] Linda Rising. <em>The Patterns Handbook: Techniques, Strategies, and Applications</em>. SIGS Reference Library. SIGS, 1998.
+          </li>
+          <li>
+            [Jackson 2019] Cam Jackson. <em>Micro Frontends</em>. <a href="https://martinfowler.com/articles/">https://martinfowler.com/articles/</a> micro-frontends.html. Acesso em: Dezembro 2023. 2019.
+          </li>
+          <li>
+            [Taibi e Mezzalira 2022] Davide Taibi e Luca Mezzalira. <em>Micro-frontends: principles, implementations, and pitfalls</em>. SIGSOFT Softw. Eng. Notes 47.4 (set. de 2022), pp. 25-29.
+          </li>
+          <li class="text-break">
+            [Zack Jackson and Tobias Koppers 2020] Zack Jackson and Tobias Koppers. <em>Module Federation in Webpack 5</em>. <a href="http://https://github.com/sokra/slides/blob/master/content/ModuleFederationWebpack5.md">https://github.com/sokra/slides/blob/master/content/ModuleFederationWebpack5.md</a>. 2020.
+          </li>
+          <li>
+            [Webpack 2023] Webpack. <em>Module Federation</em>. <a href="https://webpack.js.org/concepts/module-federation/">https://webpack.js.org/concepts/module-federation/</a>. 2023.
+          </li>
+          <li>
+            [Zack Jackson 2020] Zack Jackson. <em>Webpack 5 Module Federation: A game-changer in JavaScript architecture</em>. <a href="http://https://medium.com/swlh/webpack-5-module-federation- a-game-changer-to-javascript-architecture-bcdd30e02669">https://medium.com/swlh/webpack-5-module-federation- a-game-changer-to-javascript-architecture-bcdd30e02669</a>. 2020.
+          </li>
+        </ol>
+      </section>
+    </div>
+  </div>
+
+</main>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="style.js"></script>
+</body>
+</html>
